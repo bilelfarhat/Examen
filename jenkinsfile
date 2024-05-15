@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    tools {
+        nodejs 'nodejs' 
+    }
+    stages {
+        stage('Checkout repository') {
+            steps {
+                git branch: 'master', url: 'https://github.com/bilelfarhat/DeepLearning-Fruit_Vegetable_Prediction.git'
+            }
+        }
+        stage('Build Docker image') {
+            steps {
+                script {
+                    // Construction de l'image Docker
+                    docker.build('netflix', '-f Dockerfile .')
+
+                    // Taggage de l'image Docker
+                    docker.image('netflix').tag("bilelfarhat/netflix:latest")
+                }
+            }
+        }
+        stage('Push Docker image to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    // Connexion à Docker Hub et envoi de l'image
+                    sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+                    sh 'docker push bilelfarhat/netflix:latest'
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            steps {
+                // Déploiement de l'application sur Kubernetes
+                script {
+                    dir('Kubernetes') {
+                        withKubeConfig(...) {
+                            sh 'kubectl apply -f deployment.yml'
+                            sh 'kubectl apply -f service.yml'
+                            sh 'kubectl get svc'
+                            sh 'kubectl get all'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
