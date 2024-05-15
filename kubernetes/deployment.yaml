@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: examen-app
+  labels:
+    app: examen-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: examen-app
+  template:
+    metadata:
+      labels:
+        app: examen-app
+    spec:
+      containers:
+      - name: examen-app
+        image: bilelfarhat/examen:latest
+        ports:
+        - containerPort: 80

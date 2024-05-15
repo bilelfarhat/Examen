@@ -35,8 +35,7 @@ pipeline {
                 script {
                     dir('Kubernetes') {
                         withKubeConfig(...) {
-                            sh 'kubectl apply -f deployment.yml'
-                            sh 'kubectl apply -f service.yml'
+                            sh 'kubectl apply -f kubernetes'
                             sh 'kubectl get svc'
                             sh 'kubectl get all'
                         }
